@@ -1,4 +1,4 @@
-FROM golang:1.24.2-bullseye AS builder
+FROM golang:1.24.5-bullseye AS builder
 
 ARG github_username
 ARG github_token
