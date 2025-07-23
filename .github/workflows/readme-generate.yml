@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate README using (Azure) OpenAI
-        uses: cedricve/llm-generated-readme@v1.1.0
+        uses: cedricve/llm-generated-readme@v1.2.0
         with:
           github_token: ${{ secrets.TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
