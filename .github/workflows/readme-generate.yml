@@ -1,0 +1,18 @@
+name: Generate README
+
+on: workflow_dispatch
+
+jobs:
+  generate-readme:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate README using (Azure) OpenAI
+        uses: cedricve/llm-generated-readme@v1.1.0
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          azure_openai_api_key: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          azure_openai_endpoint: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          azure_openai_version: ${{ secrets.AZURE_OPENAI_VERSION }}
