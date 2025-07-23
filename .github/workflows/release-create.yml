@@ -40,7 +40,7 @@ jobs:
       - name: Build Golang application
         run: |
           git config --global url."https://${{ secrets.USERNAME }}:${{ secrets.TOKEN }}@github.com/".insteadOf "https://github.com/"
-          go build -o main
+          go build -o main examples/main.go 
       # Build the Docker image with the latest tag and the release tag
       - name: Build and push Docker image with latest tag
         uses: docker/build-push-action@v2
