@@ -1,4 +1,15 @@
+package date
 
+import (
+	"fmt"
+	"time"
+)
+
+func GetHour(timezone string, timestamp int64) int {
+	t := time.Unix(timestamp, 0)
+	loc, _ := time.LoadLocation(timezone)
+	return t.In(loc).Hour()
+}
 
 func GetDate(timezone string, timestamp int64) string {
 	t := time.Unix(timestamp, 0)
@@ -63,4 +74,23 @@ func GetTimestamp(timezone string, date string) int64 {
 		return -1
 	}
 	return t.Unix()
+}
+
+// FormatDuration formats a float64 duration (in seconds) into hh:mm:ss format if hours are greater than 0,
+// otherwise it returns mm:ss format.
+func FormatDuration(duration float64) string {
+	if duration == 0 {
+		return "00:00"
+	}
+	totalSeconds := int(duration) // Convert float64 to int
+	hours := totalSeconds / 3600
+	minutes := (totalSeconds % 3600) / 60
+	seconds := totalSeconds % 60
+	if hours > 0 {
+		return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds) // Include hours if greater than 0
+	}
+	if minutes == 0 && seconds == 0 {
+		return "<00:01"
+	}
+	return fmt.Sprintf("%02d:%02d", minutes, seconds) // Omit hours if 0
 }
