@@ -1,0 +1,41 @@
+name: Test Coverage
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  release:
+    types: [created]
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # Setup Golang for us in the workflow
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          check-latest: true
+          cache-dependency-path: |
+            api/go.sum
+      # Test the Golang application
+      - name: Test Golang appl
+        run: |
+          cd api
+          git config --global url."https://${{ secrets.USERNAME }}:${{ secrets.TOKEN }}@github.com/".insteadOf "https://github.com/"
+          go fmt $(go list ./... | grep -v /vendor/)
+          go vet $(go list ./... | grep -v /vendor/)
+          go test -race $(go list ./... | grep -v /vendor/)
+      # Print out test coverage
+      - name: Print test coverage
+        run: |
+          cd api
+          go test -coverprofile=coverage.out $(go list ./... | grep -v /vendor/)
+          go tool cover -func=coverage.out
+          go tool cover -html=coverage.out -o coverage.html
+      # Upload test coverage report
+      - name: Upload test coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: api/coverage.html
