@@ -1,5 +1,7 @@
 # uug-ai/utils
 
+[![codecov](https://codecov.io/gh/uug-ai/utils/graph/badge.svg?token=DVWBIVP43O)](https://codecov.io/gh/uug-ai/utils)
+
 ## Overview
 This repository, `uug-ai/utils`, is a collection of utility functions designed to perform various common tasks in software development. These utilities include string manipulation, date and time formatting, encoding/decoding operations, and random key generation. The repository aims to provide developers with a set of reliable and reusable functions to streamline their development workflow.
 
