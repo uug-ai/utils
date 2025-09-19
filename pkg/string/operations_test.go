@@ -74,3 +74,45 @@ func TestRemoveOrdinalSuffix(t *testing.T) {
 		})
 	}
 }
+
+func TestObscureToken(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"long token", "abcdefghijklmnopqrstuvwxyz", "abcde...vwxyz"},
+		{"exactly 10 chars", "abcdefghij", "abcdefghij"},
+		{"less than 10 chars", "abcdef", "abcdef"},
+		{"empty string", "", ""},
+		{"token with spaces", "12345 67890 12345", "12345...12345"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ObscureToken(tt.input)
+			if result != tt.expected {
+				t.Errorf("ObscureToken(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+
+	testsFailed := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"failed case 1", "abcdefghijklmno", "abcde...lmnop"}, // incorrect expected value
+		{"failed case 2", "12345678901", "12345...67890"},     // incorrect expected value
+	}
+
+	for _, tt := range testsFailed {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ObscureToken(tt.input)
+			// These cases intentionally have incorrect expected values; assert they DO NOT match.
+			if result == tt.expected {
+				t.Errorf("ObscureToken(%q) = %q; expected this test case to fail but it matched", tt.input, result)
+			}
+		})
+	}
+}
