@@ -116,3 +116,33 @@ func TestObscureToken(t *testing.T) {
 		})
 	}
 }
+
+func TestToStringSlice(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    any
+		expected []string
+	}{
+		{"slice of strings", []string{"a", "b", "c"}, []string{"a", "b", "c"}},
+		{"slice of interfaces with strings", []interface{}{"x", "y", "z"}, []string{"x", "y", "z"}},
+		{"slice of interfaces with mixed types", []interface{}{"hello", 123, "world"}, []string{"hello", "world"}},
+		{"non-slice input", 42, nil},
+		{"nil input", nil, nil},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ToStringSlice(tt.input)
+			if len(result) != len(tt.expected) {
+				t.Errorf("ToStringSlice(%v) = %v, want %v", tt.input, result, tt.expected)
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("ToStringSlice(%v) = %v, want %v", tt.input, result, tt.expected)
+					return
+				}
+			}
+		})
+	}
+}
