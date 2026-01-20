@@ -39,3 +39,21 @@ func ObscureToken(token string) string {
 	right := string(r[len(r)-5:])
 	return left + "..." + right
 }
+
+// ToStringSlice attempts to convert an interface{} to a []string.
+func ToStringSlice(value any) []string {
+	switch cast := value.(type) {
+	case []string:
+		return cast
+	case []interface{}:
+		output := make([]string, 0, len(cast))
+		for _, item := range cast {
+			if str, ok := item.(string); ok {
+				output = append(output, str)
+			}
+		}
+		return output
+	default:
+		return nil
+	}
+}
