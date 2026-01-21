@@ -94,3 +94,33 @@ func FormatDuration(duration float64) string {
 	}
 	return fmt.Sprintf("%02d:%02d", minutes, seconds) // Omit hours if 0
 }
+
+// FormatDurationShortMillis formats a duration in milliseconds into a short, human-readable string
+// like "30s" or "4m 12s".
+func FormatDurationShortMillis(durationMs int) string {
+	if durationMs <= 0 {
+		return "0s"
+	}
+	totalSeconds := durationMs / 1000
+	if totalSeconds == 0 {
+		return "<1s"
+	}
+	hours := totalSeconds / 3600
+	minutes := (totalSeconds % 3600) / 60
+	seconds := totalSeconds % 60
+
+	var parts []string
+	if hours > 0 {
+		parts = append(parts, fmt.Sprintf("%dh", hours))
+	}
+	if minutes > 0 {
+		parts = append(parts, fmt.Sprintf("%dm", minutes))
+	}
+	if seconds > 0 {
+		parts = append(parts, fmt.Sprintf("%ds", seconds))
+	}
+	if len(parts) == 0 {
+		return "0s"
+	}
+	return strings.Join(parts, " ")
+}
