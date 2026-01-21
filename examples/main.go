@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
-func main() {
-	// Get the value of the environment variable "MY_ENV_VAR"
-	envVar := os.Getenv("MY_ENV_VAR")
-
-	// Check if the environment variable is set
-	if envVar == "" {
-		fmt.Println("Environment variable MY_ENV_VAR is not set.")
-	} else {
-		fmt.Printf("The value of MY_ENV_VAR is: %s\n", envVar)
+func printEnvVar(name string, w io.Writer) {
+	v := os.Getenv(name)
+	if v == "" {
+		fmt.Fprintln(w, "Environment variable "+name+" is not set.")
+		return
 	}
+	fmt.Fprintf(w, "The value of %s is: %s\n", name, v)
+}
+
+func main() {
+	printEnvVar("MY_ENV_VAR", os.Stdout)
 }

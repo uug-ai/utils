@@ -3,6 +3,7 @@ package strings
 import (
 	cryptorand "crypto/rand"
 	"fmt"
+	"io"
 	"math/rand"
 	"time"
 )
@@ -28,7 +29,7 @@ func RandStringBytesRmndr(n int) string {
 
 func RandKey() (string, error) {
 	b := make([]byte, 32)
-	_, err := cryptorand.Read(b)
+	_, err := io.ReadFull(cryptorand.Reader, b)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate secure random key: %v", err)
 	}
