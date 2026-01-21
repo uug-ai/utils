@@ -72,3 +72,30 @@ func CompressCentroids(centroids [][2]float64, maxPoints int) [][2]float64 {
 	}
 	return downsampled
 }
+
+func BuildCentroids(traject []interface{}, frameWidth, frameHeight float64) [][2]float64 {
+	centroids := make([][2]float64, 0, len(traject))
+	for _, t := range traject {
+		coord, ok := t.([]interface{})
+		if !ok || len(coord) < 4 {
+			continue
+		}
+		x1, _ := coord[0].(float64)
+		y1, _ := coord[1].(float64)
+		x2, _ := coord[2].(float64)
+		y2, _ := coord[3].(float64)
+
+		centerX := x1 + (x2-x1)/2
+		centerY := y1 + (y2-y1)/2
+
+		// Normalize to 100x100 when dimensions are available, else keep raw centers.
+		if frameWidth > 0 && frameHeight > 0 {
+			centerX = centerX * 100.0 / frameWidth
+			centerY = centerY * 100.0 / frameHeight
+		}
+
+		centroids = append(centroids, [2]float64{centerX, centerY})
+	}
+
+	return centroids
+}
