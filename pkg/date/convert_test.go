@@ -2,6 +2,7 @@ package date
 
 import (
 	"testing"
+	"time"
 )
 
 func TestGetDate(t *testing.T) {
@@ -131,6 +132,34 @@ func TestGetDateShort(t *testing.T) {
 
 	if result != expected {
 		t.Errorf("GetDateShort(\"UTC\", %d) = %q, want %q", timestamp, result, expected)
+	}
+}
+
+func TestGetDateShort_Suffixes(t *testing.T) {
+	// Validate suffix logic for 1/21/31 -> st, 2/22 -> nd, 3/23 -> rd, others -> th
+	tests := []struct {
+		name     string
+		date     time.Time
+		expected string
+	}{
+		{"1st", time.Date(2023, time.January, 1, 12, 0, 0, 0, time.UTC), "January 1st,Sunday"},
+		{"2nd", time.Date(2023, time.January, 2, 12, 0, 0, 0, time.UTC), "January 2nd,Monday"},
+		{"3rd", time.Date(2023, time.January, 3, 12, 0, 0, 0, time.UTC), "January 3rd,Tuesday"},
+		{"th default", time.Date(2023, time.January, 4, 12, 0, 0, 0, time.UTC), "January 4th,Wednesday"},
+		{"21st", time.Date(2023, time.January, 21, 12, 0, 0, 0, time.UTC), "January 21st,Saturday"},
+		{"22nd", time.Date(2023, time.January, 22, 12, 0, 0, 0, time.UTC), "January 22nd,Sunday"},
+		{"23rd", time.Date(2023, time.January, 23, 12, 0, 0, 0, time.UTC), "January 23rd,Monday"},
+		{"31st", time.Date(2023, time.January, 31, 12, 0, 0, 0, time.UTC), "January 31st,Tuesday"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			timestamp := tt.date.Unix()
+			result := GetDateShort("UTC", timestamp)
+			if result != tt.expected {
+				t.Errorf("GetDateShort(UTC, %d) = %q, want %q", timestamp, result, tt.expected)
+			}
+		})
 	}
 }
 

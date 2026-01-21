@@ -1,6 +1,8 @@
 package strings
 
 import (
+	cryptorand "crypto/rand"
+	"errors"
 	"strings"
 	"testing"
 )
@@ -109,6 +111,30 @@ func TestRandKeyErrorHandling(t *testing.T) {
 
 	// If no error occurred in 100 attempts, that's normal and expected
 	t.Log("RandKey() completed 100 successful calls - error handling code is present but not triggered")
+}
+
+// errReader forces crypto/rand.Reader to return an error.
+type errReader struct{}
+
+func (errReader) Read(p []byte) (int, error) { return 0, errors.New("forced failure") }
+
+func TestRandKey_ReadError(t *testing.T) {
+	// Temporarily replace crypto/rand.Reader to simulate failure.
+	original := cryptorand.Reader
+	cryptorand.Reader = errReader{}
+	defer func() { cryptorand.Reader = original }()
+
+	key, err := RandKey()
+	if err == nil {
+		t.Fatalf("RandKey() expected error but got none")
+	}
+	if key != "" {
+		t.Errorf("RandKey() returned non-empty key on error: %q", key)
+	}
+	expectedPrefix := "failed to generate secure random key:"
+	if !strings.Contains(err.Error(), expectedPrefix) {
+		t.Errorf("RandKey() error message format incorrect, got: %v", err)
+	}
 }
 
 func TestGenerateKey(t *testing.T) {
