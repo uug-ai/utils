@@ -61,6 +61,13 @@ func CompressCentroids(centroids [][2]float64, maxPoints int) [][2]float64 {
 		return reduced
 	}
 
+	// Edge case: when maxPoints==1, the downsampling step denominator (maxPoints-1)
+	// would be zero, leading to NaN/Inf indices when casting to int in some Go builds.
+	// Return the first representative point from the reduced set to avoid invalid indexing.
+	if maxPoints == 1 {
+		return reduced[:1]
+	}
+
 	step := float64(len(reduced)-1) / float64(maxPoints-1)
 	downsampled := make([][2]float64, 0, maxPoints)
 	for i := 0; i < maxPoints; i++ {
