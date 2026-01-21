@@ -209,3 +209,30 @@ func TestFormatDuration(t *testing.T) {
 		})
 	}
 }
+
+func TestFormatDurationShortMillis(t *testing.T) {
+	tests := []struct {
+		name       string
+		durationMs int
+		expected   string
+	}{
+		{"negative duration", -10, "0s"},
+		{"zero duration", 0, "0s"},
+		{"sub-second duration", 500, "<1s"},
+		{"one second", 1000, "1s"},
+		{"one minute", 60000, "1m"},
+		{"one minute one second", 61000, "1m 1s"},
+		{"one hour", 3600000, "1h"},
+		{"one hour one second", 3601000, "1h 1s"},
+		{"one hour one minute one second", 3661000, "1h 1m 1s"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := FormatDurationShortMillis(tt.durationMs)
+			if result != tt.expected {
+				t.Errorf("FormatDurationShortMillis(%d) = %q, want %q", tt.durationMs, result, tt.expected)
+			}
+		})
+	}
+}
