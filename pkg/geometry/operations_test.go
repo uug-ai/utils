@@ -188,6 +188,22 @@ func TestCompressCentroids_MaxPointsDividedEqually(t *testing.T) {
 	}
 }
 
+// Explicitly exercise the zero-area fallback which returns the first point.
+// This mirrors the guard that handles `width==0 && height==0` (and the inner
+// `maxRange<=0` path) to ensure we always return exactly one representative.
+func TestCompressCentroids_ZeroAreaFallback(t *testing.T) {
+	pts := [][2]float64{{42, 42}, {42, 42}, {42, 42}, {42, 42}}
+	// Use maxPoints < len(pts) so we actually invoke the zero-area fallback
+	// (the function returns input as-is when len(pts) <= maxPoints).
+	got := CompressCentroids(pts, 2)
+	if len(got) != 1 {
+		t.Fatalf("zero-area fallback: got len=%d, want 1; got=%v", len(got), got)
+	}
+	if got[0] != pts[0] {
+		t.Fatalf("zero-area fallback: first point mismatch: got %v, want %v", got[0], pts[0])
+	}
+}
+
 // helper to recompute the intermediate reduced set like the implementation, for property checks.
 func recomputeReduced(centroids [][2]float64, maxPoints int) (reduced [][2]float64) {
 	if len(centroids) == 0 {
@@ -301,6 +317,41 @@ func TestCompressCentroids_Property_Randomized(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// Ensure when downsampling occurs, the last element of the output corresponds
+// exactly to the last element of the reduced set (after bucketing). This
+// specifically validates the index clamping logic used when rounding could
+// overshoot the last index.
+func TestCompressCentroids_Downsample_LastIndexClamped(t *testing.T) {
+	// Build a dense set to force reduced > maxPoints via bucketing.
+	n := 500
+	pts := make([][2]float64, 0, n)
+	for i := 0; i < n; i++ {
+		// Spread points across a rectangle; ensure duplicates to reduce via cells
+		x := float64(i % 50) // 0..49
+		y := float64(i % 40) // 0..39
+		pts = append(pts, [2]float64{x, y})
+	}
+
+	maxPoints := 25
+	got := CompressCentroids(pts, maxPoints)
+
+	// Recompute reduced as in implementation to inspect endpoints.
+	reduced := recomputeReduced(pts, maxPoints)
+	if len(reduced) <= maxPoints {
+		t.Fatalf("setup failed: expected reduced > maxPoints; got reduced=%d, maxPoints=%d", len(reduced), maxPoints)
+	}
+
+	// First point should match reduced[0]
+	if got[0] != reduced[0] {
+		t.Fatalf("last-index clamp: first point mismatch: got %v, want %v", got[0], reduced[0])
+	}
+	// Last point should be exactly the reduced last element. This covers the
+	// clamping behavior in case rounding overshoots the last index.
+	if got[len(got)-1] != reduced[len(reduced)-1] {
+		t.Fatalf("last-index clamp: last point mismatch: got %v, want %v", got[len(got)-1], reduced[len(reduced)-1])
 	}
 }
 
