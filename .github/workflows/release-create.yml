@@ -62,17 +62,4 @@ jobs:
             github_username=${{ secrets.USERNAME }}
             github_token=${{ secrets.TOKEN }}
           tags: uugai/utils:${{ github.event.inputs.tag || github.ref_name }}
-      # After we build the Docker image, we create a pull request to update the GitOps repository
-      # This will allow us to update the Helm chart with the new Docker image tag.
-      - name: Create GitOps Pull Request
-        uses: cedricve/gitops-pullrequest-action@master
-        with:
-          github-token: ${{ secrets.TOKEN }}
-          gitops-repo: "uug-ai/gitops"
-          gitops-file: "environments/staging/kerberos-hub/values.yaml"
-          gitops-pr-branch: "release-utils-${{ github.event.inputs.tag || github.ref_name }}"
-          gitops-key: "kerberospipeline.notify.tag"
-          gitops-value: "${{ github.event.inputs.tag || github.ref_name }}"
-          commit-email: "gitops@uug.ai"
-          commit-name: "GitOps - UUG.AI"
-          commit-message: "A new release for utils - ${{ github.event.inputs.tag || github.ref_name }}"
+
