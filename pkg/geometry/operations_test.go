@@ -150,6 +150,44 @@ func TestCompressCentroids_MaxPointsOne(t *testing.T) {
 	}
 }
 
+func TestCompressCentroids_MaxPointsTwo(t *testing.T) {
+	centroids := [][2]float64{{0, 0}, {1, 1}, {2, 2}, {700, 500}, {909, 1560}, {2, 2}, {1, 1}, {0, 0}}
+	got := CompressCentroids(centroids, 3)
+	if len(got) != 3 {
+		t.Fatalf("maxPoints=3: got len=%d, want 3; got=%v", len(got), got)
+	}
+	// Expect first input representative preserved
+	if got[0] != centroids[0] {
+		t.Fatalf("maxPoints=3: first point mismatch: got %v, want %v", got[0], centroids[0])
+	}
+}
+
+func TestCompressCentroids_MaxPointsEqualToLength(t *testing.T) {
+	centroids := [][2]float64{{0, 0}, {1, 1}, {2, 2}, {700, 500}, {909, 1560}, {2, 2}, {1, 1}, {0, 0}}
+	got := CompressCentroids(centroids, 8)
+	if len(got) != 8 {
+		t.Fatalf("maxPoints=8: got len=%d, want 8; got=%v", len(got), got)
+	}
+	// Expect first input representative preserved
+	if got[0] != centroids[0] {
+		t.Fatalf("maxPoints=8: first point mismatch: got %v, want %v", got[0], centroids[0])
+	}
+}
+
+// Testing if points equally spaced returns expected count when maxPoints does not evenly divide.
+func TestCompressCentroids_MaxPointsDividedEqually(t *testing.T) {
+	centroids := [][2]float64{{0, 0}, {0, 1}, {1, 0}, {2, 0}, {0, 2}, {2, 2}, {1, 1}, {1, 2}}
+	got := CompressCentroids(centroids, 4)
+	if len(got) != 4 {
+		t.Fatalf("maxPoints=4: got len=%d, want 4; got=%v", len(got), got)
+	}
+
+	// Expect first input representative preserved
+	if got[0] != centroids[0] {
+		t.Fatalf("maxPoints=4: first point mismatch: got %v, want %v", got[0], centroids[0])
+	}
+}
+
 // helper to recompute the intermediate reduced set like the implementation, for property checks.
 func recomputeReduced(centroids [][2]float64, maxPoints int) (reduced [][2]float64) {
 	if len(centroids) == 0 {
