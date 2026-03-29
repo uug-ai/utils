@@ -100,7 +100,7 @@ func TestReverse(t *testing.T) {
 	if Reverse("world!") != "!dlrow" {
 		t.Errorf("Reverse did not reverse ascii string")
 	}
-	if Reverse("\ud83d\udc4b\ud83c\udf0d") != "\ud83c\udf0d\ud83d\udc4b" {
+	if Reverse("\U0001F44B\U0001F30D") != "\U0001F30D\U0001F44B" {
 		t.Errorf("Reverse did not reverse utf-8 string")
 	}
 }
