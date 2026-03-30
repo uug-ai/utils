@@ -30,9 +30,9 @@ func TestToCamelCase(t *testing.T) {
 
 func TestToSnakeCase(t *testing.T) {
 	cases := map[string]string{
-		"HelloWorld":   "hello_world",
-		"hello-world":  "hello_world",
-		"HTTPServer":   "http_server",
+		"HelloWorld":    "hello_world",
+		"hello-world":   "hello_world",
+		"HTTPServer":    "http_server",
 		"already_snake": "already_snake",
 	}
 	for input, expected := range cases {
@@ -79,8 +79,11 @@ func TestTruncate(t *testing.T) {
 	if Truncate("test", 0, "...") != "..." {
 		t.Errorf("Truncate should return ellipsis when length is zero")
 	}
-	if Truncate("hello world", 5, " [more]") != "hello [more]" {
+	if Truncate("hello world", 5, "--") != "hello--" {
 		t.Errorf("Truncate should allow custom ellipsis")
+	}
+	if Truncate("hello world", 5, " [more]") != " [mor" {
+		t.Errorf("Truncate should trim ellipsis when it exceeds max length")
 	}
 }
 
