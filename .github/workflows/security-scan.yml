@@ -1,0 +1,16 @@
+name: Security scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  security-scan:
+    uses: uug-ai/workflows/.github/workflows/security-scan.yml@main
+    with:
+      project: ${{ github.event.repository.name }}
+      docker_context: "."
+    secrets: inherit
