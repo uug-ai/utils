@@ -16,7 +16,7 @@ RUN git config --global \
 
 # Build the application
 RUN go mod download && \
-    go build -tags timetzdata,netgo --ldflags '-s -w -extldflags "-static -latomic"' examples/main.go && \
+    go build -tags timetzdata,netgo --ldflags '-s -w -extldflags "-static -latomic"' main.go && \
     mkdir -p /utils && \
     mv main /utils 
 
