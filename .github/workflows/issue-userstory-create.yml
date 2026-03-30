@@ -1,0 +1,42 @@
+name: Create User Story Issue
+on:
+  workflow_dispatch:
+    inputs:
+      issue_title:
+        description: 'Title for the issue'
+        required: true
+      issue_description:
+        description: 'Brief description of the feature'
+        required: true
+      complexity:
+        description: 'Complexity of the feature'
+        required: true
+        type: choice
+        options:
+          - 'Low'
+          - 'Medium'
+          - 'High'
+        default: 'Medium'
+      duration:
+        description: 'Estimated duration'
+        required: true
+        type: choice
+        options:
+          - '1 day'
+          - '3 days'
+          - '1 week'
+          - '2 weeks'
+          - '1 month'
+        default: '1 week'
+
+jobs:
+  create-issue:
+    uses: uug-ai/workflows/.github/workflows/issue-userstory-create.yml@main
+    with:
+      issue_title: ${{ github.event.inputs.issue_title }}
+      issue_description: ${{ github.event.inputs.issue_description }}
+      complexity: ${{ github.event.inputs.complexity }}
+      duration: ${{ github.event.inputs.duration }}
+      labels: 'user-story,feature'
+      assignees: ${{ github.actor }}
+    secrets: inherit

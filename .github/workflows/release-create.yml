@@ -2,64 +2,19 @@ name: Create a new release
 on:
   release:
     types: [created]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Tag for the Docker image"
-        required: true
-        default: "test"
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      # Setup Golang for us in the workflow
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.24"
-          check-latest: true
-          cache-dependency-path: |
-            go.sum
-      # Test the Golang application
-      - name: Test Golang application
-        run: |
-          git config --global url."https://${{ secrets.USERNAME }}:${{ secrets.TOKEN }}@github.com/".insteadOf "https://github.com/"
-          go fmt $(go list ./... | grep -v /vendor/)
-          go vet $(go list ./... | grep -v /vendor/)
-          go test -race $(go list ./... | grep -v /vendor/)
-      # Build the Golang application to the dist folder
-      - name: Build Golang application
-        run: |
-          git config --global url."https://${{ secrets.USERNAME }}:${{ secrets.TOKEN }}@github.com/".insteadOf "https://github.com/"
-          go build -o main examples/main.go 
-      # Build the Docker image with the latest tag and the release tag
-      - name: Build and push Docker image with latest tag
-        uses: docker/build-push-action@v2
-        if: github.event.inputs.tag != 'test'
-        with:
-          context: .
-          push: true
-          build-args: |
-            github_username=${{ secrets.USERNAME }}
-            github_token=${{ secrets.TOKEN }}
-          tags: uugai/utils:latest
-      - name: Build and push Docker image with release tag
-        uses: docker/build-push-action@v2
-        if: github.event.inputs.tag != 'test'
-        with:
-          context: .
-          push: true
-          build-args: |
-            github_username=${{ secrets.USERNAME }}
-            github_token=${{ secrets.TOKEN }}
-          tags: uugai/utils:${{ github.event.inputs.tag || github.ref_name }}
 
+jobs:
+  release:
+    uses: uug-ai/workflows/.github/workflows/release-create.yml@main
+    with:
+      organization: uug-ai
+      project: ${{ github.event.repository.name }}
+      tag: ${{ github.event.release.tag_name }}
+      docker_context: "."
+      runner_matrix: >-
+        [
+          {"architecture":"amd64","runner":"ubuntu-24.04"},
+          {"architecture":"arm64","runner":"ubuntu-24.04-arm"}
+        ]
+      create_gitops_pr: false
+    secrets: inherit
